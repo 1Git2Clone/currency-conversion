@@ -245,7 +245,7 @@ ISO_4217_CURRENCY_CODES: set = {
 SCRIPT_PATH = path.dirname(path.abspath(__file__))
 
 
-def exit(output: OutputJSON):
+def save_and_exit(output: OutputJSON):
     output_file_path = path.join(SCRIPT_PATH, "output/conversions.json")
     choice: str = "y"
     while True:
@@ -295,6 +295,7 @@ def exit(output: OutputJSON):
         )
 
     print("Gracefully exiting...")
+    quit(0)
 
 
 def parse_yyyy_mm_dd(date: datetime) -> str:
@@ -341,6 +342,10 @@ def parse_time(yyyy_mm_dd: str) -> str:
 
 
 def input_currency_value(prompt: str, output: OutputJSON) -> float:
+    """
+    Handles user input with parsing from int to float and enforcing 2 decimal
+    points.
+    """
     value_error = (
         "Please enter an integer or a decimal value with up to 2 floating points."
     )
@@ -353,8 +358,7 @@ def input_currency_value(prompt: str, output: OutputJSON) -> float:
             continue
 
         if amount.lower() == "end":
-            exit(output=output)
-            quit(0)
+            save_and_exit(output=output)
 
         try:
             split = amount.split(".")
@@ -380,8 +384,7 @@ def input_currency_type(prompt: str, output: OutputJSON):
             continue
 
         if currency.lower() == "end":
-            exit(output)
-            quit(0)
+            save_and_exit(output)
 
         if currency not in ISO_4217_CURRENCY_CODES:
             print("Please enter an ISO 4217 compliant currency code.")
@@ -401,6 +404,10 @@ def program_loop(
     cached_conversions: CachedConversions,
     output: OutputJSON,
 ) -> None:
+    """
+    Main program loop which sends and caches the required information from API
+    requests to [fastforex](https://www.fastforex.io/).
+    """
     print("Type 'end' at any time to gracefully exit the program.")
 
     amount: float = input_currency_value(prompt="Enter amount: ", output=output)
@@ -453,6 +460,10 @@ def program_loop(
 
 
 def main() -> None:
+    """
+    Other than the argument parsing, the main function here is also responsible
+    for storing the cache and the entire OutputJSON file.
+    """
     parser = ArgumentParser(
         prog="CurrencyConversion.py",
         description="Converts user input value from one currency into another into a JSON file.",
