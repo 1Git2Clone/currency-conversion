@@ -309,7 +309,7 @@ def parse_yyyy_mm_dd(date: datetime) -> str:
 
 
 def parse_time(yyyy_mm_dd: str) -> str:
-    if yyyy_mm_dd.lower().replace("'", "").replace('"', "") == "now":
+    if yyyy_mm_dd.lower() == "now":
         return parse_yyyy_mm_dd(datetime.now())
 
     separated_yyyy_mm_dd = yyyy_mm_dd.split("-")
