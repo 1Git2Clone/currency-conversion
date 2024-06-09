@@ -35,7 +35,7 @@ python3 CurrencyConversion.py -d="nOw"
 
 ## Setting up
 
-Head to [FastFortex](https://console.fastforex.io/auth/signin) and make an
+Head to [FastForex](https://console.fastforex.io/auth/signin) and make an
 account for an API key.
 
 Add the API key in a `config.json` file in the root of this repository. The
@@ -47,7 +47,7 @@ file format should be like this
 }
 ```
 
-It's necessary for the variable to be called `fast_fortex_api_key`.
+It's necessary for the variable to be called `fast_forex_api_key`.
 
 Additionally you need to install requests if you haven't already. You can do it
 in 2 ways (i recommend using the [requirements.txt](requirements.txt) one).
