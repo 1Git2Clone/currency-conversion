@@ -83,6 +83,7 @@ def main() -> int:
         '--date', '-d', \
         type=str, \
         default="", \
+        required=True, \
         help='The date format is YYYY-MM-DD.', \
     )
 
@@ -91,8 +92,7 @@ def main() -> int:
     yyyy_mm_dd: list[str] = args.date.split('-')
     date: datetime
 
-    if not yyyy_mm_dd or \
-       len(yyyy_mm_dd) != 3:
+    if len(yyyy_mm_dd) != 3:
         print("Please make sure to specify a --date / -d flag.")
         return 1
 
