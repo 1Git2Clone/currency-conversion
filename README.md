@@ -5,6 +5,34 @@ Related to [this page containing all the requirements](https://www.appolica.com/
 A program that converts user input value from one currency into another into a
 `JSON` file.
 
+## Features
+
+The currency converter takes a date, value and your desired input and output
+currencies in an infinite loop. In order to exit the app you just need to type
+`end`. After typing `end` you'll get a few additional prompts telling you to
+save your file in `output/conversions.json` and if there's already a saved file
+from there then you can choose to:
+
+- Write to a new file (only in `output/`).
+
+- Override the existing file.
+
+- Discard your changes.
+
+In the case where you want to use today's date, there's a neat shorthand for
+the `--date` / `-d` command with an alias of `now`. With it you can use today's
+date without having to type it out like this:
+
+```sh
+python3 CurrencyConversion.py --date=now
+# or
+python3 CurrencyConversion.py -d=now
+# Trailing/leading quotes don't affect it either
+python3 CurrencyConversion.py -d="now"
+# It's also case-insensitive
+python3 CurrencyConversion.py -d="nOw"
+```
+
 ## Setting up
 
 Head to [FastFortex](https://console.fastforex.io/auth/signin) and make an
