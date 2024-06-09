@@ -26,6 +26,37 @@ ISO_4217_CURRENCY_CODES: set = {
 def exit():
     print("Gracefully exiting...")
 
+def parse_time(yyyy_mm_dd: str) -> datetime:
+    if yyyy_mm_dd.lower().replace('\'', "").replace('"', "") == "now":
+        return datetime.now()
+
+    separated_yyyy_mm_dd = yyyy_mm_dd.split('-')
+
+    date: datetime
+
+    if len(separated_yyyy_mm_dd) != 3:
+        print("Please make sure to specify a --date / -d flag.")
+        quit(1)
+
+    try:
+        date: datetime = datetime(
+            year=int(separated_yyyy_mm_dd[0]), \
+            month=int(separated_yyyy_mm_dd[1]), \
+            day=int(separated_yyyy_mm_dd[2]), \
+        )
+        if date.year < 1970:
+            print("There's no data for such old years...")
+            quit(1)
+        elif date > datetime.now():
+            print("This program doesn't have the capabilities to forsee future currency values... yet.")
+            quit(1)
+    except ValueError:
+        print("Please make sure your YYYY-MM-DD format only uses integer values.")
+        quit(1)
+
+    return date
+
+
 def input_currency_value(prompt: str) -> float:
     value_error = "Please enter an integer or a decimal value with up to 2 floating points."
 
@@ -84,29 +115,14 @@ def main() -> int:
         type=str, \
         default="", \
         required=True, \
-        help='The date format is YYYY-MM-DD.', \
+        help='The date format is YYYY-MM-DD. You can also use \'now\' as a shorthand for the current system day.', \
     )
 
     args = parser.parse_args()
 
-    yyyy_mm_dd: list[str] = args.date.split('-')
-    date: datetime
+    yyyy_mm_dd: str = args.date
+    date: datetime = parse_time(yyyy_mm_dd)
 
-    if len(yyyy_mm_dd) != 3:
-        print("Please make sure to specify a --date / -d flag.")
-        return 1
-
-    try:
-        date: datetime = datetime(year=int(yyyy_mm_dd[0]), month=int(yyyy_mm_dd[1]), day=int(yyyy_mm_dd[2]))
-        if date.year < 1970:
-            print("There's no data for such old years...")
-            return 1
-        elif date > datetime.now():
-            print("This program doesn't have the capabilities to forsee future currency values... yet.")
-            return 1
-    except ValueError:
-        print("Please make sure your YYYY-MM-DD format only uses integer values.")
-        return 1
 
     print("Type 'end' at any time to gracefully exit the program.")
 
