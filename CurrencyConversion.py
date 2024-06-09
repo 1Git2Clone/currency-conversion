@@ -1,11 +1,13 @@
-import json
+from os import path
+from sys import exit
+from argparse import ArgumentParser
+from datetime import datetime
+
 import math
+import json
 
 from requests import get
 from requests.models import Response
-from argparse import ArgumentParser
-from datetime import datetime
-from os import path
 
 
 class CachedConversions:
@@ -15,7 +17,7 @@ class CachedConversions:
     ]
 
     def __init__(self) -> None:
-        self.stored_values = dict()
+        self.stored_values = {}
 
     def new_entry(
         self,
@@ -27,6 +29,23 @@ class CachedConversions:
 
 
 class OutputJSON:
+    """
+    The output file class which is a list with a lot of dictionaries. The final
+    JSON format looks like this:
+
+    ```json
+    [
+      {
+        "date": "2024-06-08",
+        "amount": 1.0,
+        "base_currency": "EUR",
+        "target_currency": "BGN",
+        "converted_amount": 1.93
+      },
+    ]
+    ```
+    """
+
     date: str
     amount: float
     base_currency: str
@@ -37,7 +56,7 @@ class OutputJSON:
 
     def __init__(self) -> None:
         self.idx = 1
-        self.output_json = list()
+        self.output_json = []
 
     def append(
         self, date, amount, base_currency, target_currency, converted_amount
@@ -246,6 +265,10 @@ SCRIPT_PATH = path.dirname(path.abspath(__file__))
 
 
 def save_and_exit(output: OutputJSON):
+    """
+    Handles writing the stored OutputJSON to the output directory. By default
+    in 'output/conversions.json' but the file name can be changed.
+    """
     output_file_path = path.join(SCRIPT_PATH, "output/conversions.json")
     choice: str = "y"
     while True:
@@ -282,13 +305,13 @@ def save_and_exit(output: OutputJSON):
         #     case "1":
         #         break
         #     case "2":
-        #         quit(0)
+        #         exit(0)
         #     case _:
         #         print("Please make a valid choice.")
         if choice == "1":
             break
         elif choice == "2":
-            quit(0)
+            exit(0)
         else:
             print("Please make a valid choice.")
 
@@ -301,10 +324,13 @@ def save_and_exit(output: OutputJSON):
         )
 
     print("Gracefully exiting...")
-    quit(0)
+    exit(0)
 
 
 def parse_yyyy_mm_dd(date: datetime) -> str:
+    """
+    Handles the parsing of the trailing zeroes in the month and dates.
+    """
     parsed_month: str = str(date.month)
     if date.month < 10:
         parsed_month = "0" + parsed_month
@@ -315,6 +341,10 @@ def parse_yyyy_mm_dd(date: datetime) -> str:
 
 
 def parse_time(yyyy_mm_dd: str) -> str:
+    """
+    Handles the parsing of the entire date as well as verifying it's between
+    2015 and now.
+    """
     if yyyy_mm_dd.lower() == "now":
         return parse_yyyy_mm_dd(datetime.now())
 
@@ -337,7 +367,8 @@ def parse_time(yyyy_mm_dd: str) -> str:
             quit(1)
         elif date > datetime.now():
             print(
-                "This program doesn't have the capabilities to forsee future currency values... yet."
+                "This program doesn't have the capabilities to forsee future currency",
+                "values... yet.",
             )
             quit(1)
     except ValueError:
@@ -437,7 +468,10 @@ def program_loop(
         )
         return None
 
-    fastforex_request_url: str = f"https://api.fastforex.io/historical?date={date}&from={from_currency}&to={to_currency}&api_key={fastforex_api_key}"
+    fastforex_request_url: str = (
+        f"https://api.fastforex.io/historical?date={date}"
+        + f"&from={from_currency}&to={to_currency}&api_key={fastforex_api_key}"
+    )
     headers = {"accept": "application/json"}
     response: Response = get(fastforex_request_url, headers=headers)
     if response.status_code != 200:
@@ -480,7 +514,10 @@ def main() -> None:
         type=str,
         default="",
         required=True,
-        help="The date format is YYYY-MM-DD. You can also use 'now' as a shorthand for the current system day.",
+        help=(
+            "The date format is YYYY-MM-DD. You can also use 'now' as a shorthand for the current"
+            + " system day."
+        ),
     )
 
     args = parser.parse_args()
