@@ -1,5 +1,8 @@
+import json
+
 from argparse import ArgumentParser
 from datetime import datetime
+from os import path
 
 ISO_4217_CURRENCY_CODES: set = {
     'AED', 'AFN', 'ALL', 'AMD', 'ANG', 'AOA', 'ARS', 'AUD', 'AWG', 'AZN',
@@ -22,6 +25,8 @@ ISO_4217_CURRENCY_CODES: set = {
     'XBC', 'XBD', 'XCD', 'XDR', 'XOF', 'XPD', 'XPF', 'XPT', 'XSU', 'XTS',
     'XUA', 'XXX', 'YER', 'ZAR', 'ZMW', 'ZWL'
 }
+
+SCRIPT_PATH = path.dirname(path.abspath(__file__))
 
 def exit():
     print("Gracefully exiting...")
@@ -129,6 +134,12 @@ def main() -> int:
     amount: float = input_currency_value(prompt="Enter amount: ")
     from_currency: str = input_currency_type(prompt="Enter input currency: ")
     to_currency: str = input_currency_type(prompt="Enter target currency: ")
+
+    config = dict[str, str]
+    with open(path.join(SCRIPT_PATH, "config.json"), "r") as config_file:
+        config = json.load(config_file)
+
+    fastforex_api_key = config["fast_forex_api_key"]
 
     return 0
 
