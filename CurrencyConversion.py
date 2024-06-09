@@ -1,3 +1,4 @@
+# pylint: disable=invalid-name
 """
 A program that converts user input value from one currency into another into a
 `JSON` file. It takes the following arguments:
