@@ -101,7 +101,8 @@ def main() -> int:
         if date.year < 1970:
             print("There's no data for such old years...")
             return 1
-        elif date.year > datetime.now().year:
+        elif date > datetime.now():
+            print("This program doesn't have the capabilities to forsee future currency values... yet.")
             return 1
     except ValueError:
         print("Please make sure your YYYY-MM-DD format only uses integer values.")
