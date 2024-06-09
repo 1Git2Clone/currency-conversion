@@ -21,23 +21,6 @@ import requests
 from requests.models import Response
 
 
-# The output file class which is a list with a lot of dictionaries. The final
-# JSON format looks like this:
-#
-# ```json
-# [
-#     {
-#     "date": "2024-06-08",
-#     "amount": 1.0,
-#     "base_currency": "EUR",
-#     "target_currency": "BGN",
-#     "converted_amount": 1.93
-#     },
-# ]
-# ```
-OutputJSON = NewType("OutputJSON", list[dict[str, str | float]])
-
-
 ISO_4217_CURRENCY_CODES: set = {
     "AED",
     "AFN",
@@ -227,7 +210,30 @@ ISO_4217_CURRENCY_CODES: set = {
     "ZWL",
 }
 
+PREMATURE_EXIT = (
+    "\n"
+    + "Type out 'end' instead of forcing an exit because the program "
+    + "won't write it's output otherwise!"
+)
+
 SCRIPT_PATH = path.dirname(path.abspath(__file__))
+
+
+# The output file class which is a list with a lot of dictionaries. The final
+# JSON format looks like this:
+#
+# ```json
+# [
+#     {
+#     "date": "2024-06-08",
+#     "amount": 1.0,
+#     "base_currency": "EUR",
+#     "target_currency": "BGN",
+#     "converted_amount": 1.93
+#     },
+# ]
+# ```
+OutputJSON = NewType("OutputJSON", list[dict[str, str | float]])
 
 
 def save_and_exit(output: OutputJSON) -> NoReturn:
@@ -536,16 +542,11 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    premature_exit = (
-        "\n"
-        + "Type out 'end' instead of forcing an exit because the program "
-        + "won't write it's output otherwise!"
-    )
     try:
         main()
     except KeyboardInterrupt:
-        print(premature_exit)
+        print(PREMATURE_EXIT)
         sys.exit(1)
     except EOFError:
-        print(premature_exit)
+        print(PREMATURE_EXIT)
         sys.exit(1)
