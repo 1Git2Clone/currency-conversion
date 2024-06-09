@@ -61,7 +61,9 @@ pip install requests
 Then it's a manner of running the app.
 
 ```sh
-python3 CurrencyConversion.py YYYY-MM-DD
+python3 CurrencyConversion.py -d=YYYY-MM-DD
+# or
+python3 CurrencyConversion.py --date=YYYY-MM-DD
 ```
 
 Replace the `YYYY-MM-DD` part with the year-month-day you wish to do your
