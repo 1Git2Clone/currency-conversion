@@ -70,5 +70,5 @@ Replace the `YYYY-MM-DD` part with the year-month-day you wish to do your
 currency conversion in.
 
 > [!NOTE]
-> Free accounts are limited to 14 days back in time and the service works for
+> Free accounts are limited to 14 days back in time and their service works for
 > dates after 2015-01-01.
