@@ -1,4 +1,5 @@
 from argparse import ArgumentParser
+from datetime import datetime
 
 ISO_4217_CURRENCY_CODES: set = {
     'AED', 'AFN', 'ALL', 'AMD', 'ANG', 'AOA', 'ARS', 'AUD', 'AWG', 'AZN',
@@ -63,7 +64,7 @@ def input_currency_type(prompt: str):
     return currency
 
 
-def main():
+def main() -> int:
     parser = ArgumentParser(
                     prog='CurrencyConversion.py',
                     description='Converts user input value from one currency into another into a JSON file.')
@@ -71,12 +72,13 @@ def main():
         '--date', '-d', \
         type=str, \
         default="", \
-        help='The SauceNAO API Rate Limit toggle (On by default)', \
+        help='The date format is YYYY-MM-DD.', \
     )
 
     args = parser.parse_args()
 
-    yyyy_mm_dd: str = args.date.split('-')
+    yyyy_mm_dd: list[str] = args.date.split('-')
+    date: datetime
 
     if not yyyy_mm_dd or \
        len(yyyy_mm_dd) != 3:
@@ -84,16 +86,22 @@ def main():
         return 1
 
     try:
-        int(yyyy_mm_dd[0])
-        int(yyyy_mm_dd[1])
-        int(yyyy_mm_dd[2])
+        date: datetime = datetime(year=int(yyyy_mm_dd[0]), month=int(yyyy_mm_dd[1]), day=int(yyyy_mm_dd[2]))
+        if date.year < 1970:
+            print("There's no data for such old years...")
+            return 1
+        elif date.year > datetime.now().year:
+            return 1
     except ValueError:
         print("Please make sure your YYYY-MM-DD format only uses integer values.")
         return 1
 
+
     amount: float = input_currency_value(prompt="Enter amount: ")
     from_currency: str = input_currency_type(prompt="Enter input currency: ")
     to_currency: str = input_currency_type(prompt="Enter target currency: ")
+
+    return 0
 
 
 if __name__ == "__main__":
