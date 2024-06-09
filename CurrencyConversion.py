@@ -15,7 +15,7 @@ from datetime import datetime
 
 import math
 import json
-from typing import NewType
+from typing import NewType, NoReturn
 
 import requests
 from requests.models import Response
@@ -230,10 +230,11 @@ ISO_4217_CURRENCY_CODES: set = {
 SCRIPT_PATH = path.dirname(path.abspath(__file__))
 
 
-def save_and_exit(output: OutputJSON):
-    """
-    Handles writing the stored OutputJSON to the output directory. By default
+def save_and_exit(output: OutputJSON) -> NoReturn:
+    r"""Handles writing the stored OutputJSON to the output directory. By default
     in 'output/conversions.json' but the file name can be changed.
+
+    :rtype: typing.NoReturn
     """
     output_file_path = path.join(SCRIPT_PATH, "output/conversions.json")
     choice: str = "y"
@@ -287,8 +288,12 @@ def save_and_exit(output: OutputJSON):
 
 
 def parse_yyyy_mm_dd(date: datetime) -> str:
-    """
+    r"""
     Handles the parsing of the trailing zeroes in the month and dates.
+
+    :param yyyy_mm_dd: The program's date argument in the form of datetime.
+        YYYY-MM-DD format.
+    :rtype: str
     """
     parsed_month: str = str(date.month)
     if date.month < 10:
@@ -300,9 +305,11 @@ def parse_yyyy_mm_dd(date: datetime) -> str:
 
 
 def parse_time(yyyy_mm_dd: str) -> str:
-    """
-    Handles the parsing of the entire date as well as verifying it's between
+    r"""Handles the parsing of the entire date as well as verifying it's between
     2015 and now.
+
+    :param yyyy_mm_dd: The program's raw date argument. YYYY-MM-DD format.
+    :rtype: str
     """
     if yyyy_mm_dd.lower() == "now":
         return parse_yyyy_mm_dd(datetime.now())
@@ -338,9 +345,12 @@ def parse_time(yyyy_mm_dd: str) -> str:
 
 
 def input_currency_value(prompt: str, output: OutputJSON) -> float:
-    """
-    Handles user input with parsing from int to float and enforcing 2 decimal
+    r"""Handles user input with parsing from int to float and enforcing 2 decimal
     points.
+
+    :param prompt: The looping user prompt.
+    :param output: The program's output file JSON data.
+    :rtype: float
     """
     value_error = (
         "Please enter an integer or a decimal value with up to 2 floating points."
@@ -370,10 +380,13 @@ def input_currency_value(prompt: str, output: OutputJSON) -> float:
                 continue
 
 
-def input_currency_type(prompt: str, output: OutputJSON):
-    """
-    Utility function used for prompting the user for their 3 digit currency
+def input_currency_type(prompt: str, output: OutputJSON) -> str:
+    r"""Utility function used for prompting the user for their 3 digit currency
     input currency type which is ISO 4217 compliant.
+
+    :param prompt: The looping user prompt.
+    :param output: The program's output file JSON data.
+    :rtype: str
     """
     while True:
         currency: str = input(prompt)
@@ -404,9 +417,15 @@ def program_loop(
     cached_conversions: dict[tuple[str, str], float],
     output: OutputJSON,
 ) -> None:
-    """
-    Main program loop which sends and caches the required information from API
-    requests to [fastforex](https://www.fastforex.io/).
+    r"""Main program loop which sends and caches the required information from API
+        requests to [fastforex](https://www.fastforex.io/).
+
+    :param fast_forex_api_key: The finance API endpoint key.
+    :param date: The program's date argument. YYYY-MM-DD format.
+    :param cached_conversions: A dictionary that's used to reduce the amount of
+        API calls.
+    :param output: The program's output file JSON data.
+    :rtype: None
     """
     print("Type 'end' at any time to gracefully exit the program.")
 
@@ -473,9 +492,10 @@ def program_loop(
 
 
 def main() -> None:
-    """
-    Other than the argument parsing, the main function here is also responsible
+    r"""Other than the argument parsing, the main function here is also responsible
     for storing the cache and the entire OutputJSON file.
+
+    :rtype: None
     """
     parser = ArgumentParser(
         prog="CurrencyConversion.py",
@@ -516,13 +536,16 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    premature_exit = (
+        "\n"
+        + "Type out 'end' instead of forcing an exit because the program "
+        + "won't write it's output otherwise!"
+    )
     try:
         main()
     except KeyboardInterrupt:
-        print(
-            "\n",
-            "Type out 'end' instead of forcing an exit because the program ",
-            "won't write it's output otherwise!",
-            sep="",
-        )
+        print(premature_exit)
+        sys.exit(1)
+    except EOFError:
+        print(premature_exit)
         sys.exit(1)
