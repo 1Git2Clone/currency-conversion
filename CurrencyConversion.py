@@ -8,18 +8,25 @@ An extra feature: you can use `now` instead of YYYY-MM-DD if you want today's
 values. Check the repository-level README.md file for more information.
 """
 
+###############################################################################
+# Imports
+###############################################################################
+
 import sys
 from os import path
-from argparse import ArgumentParser
 from datetime import datetime
-
-import math
-import json
+from argparse import ArgumentParser
 from typing import NewType, NoReturn
+import math
 
+import json
 import requests
 from requests.models import Response
 
+
+###############################################################################
+# Constants
+###############################################################################
 
 ISO_4217_CURRENCY_CODES: set = {
     "AED",
@@ -218,6 +225,9 @@ PREMATURE_EXIT = (
 
 SCRIPT_PATH = path.dirname(path.abspath(__file__))
 
+###############################################################################
+# Types/Classes
+###############################################################################
 
 # The output file class which is a list with a lot of dictionaries. The final
 # JSON format looks like this:
@@ -234,6 +244,10 @@ SCRIPT_PATH = path.dirname(path.abspath(__file__))
 # ]
 # ```
 OutputJSON = NewType("OutputJSON", list[dict[str, str | float]])
+
+###############################################################################
+# Fucntions
+###############################################################################
 
 
 def save_and_exit(output: OutputJSON) -> NoReturn:
@@ -495,6 +509,11 @@ def program_loop(
     print(output[0])
 
     return None
+
+
+###############################################################################
+# Main
+###############################################################################
 
 
 def main() -> None:
