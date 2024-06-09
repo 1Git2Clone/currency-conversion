@@ -23,6 +23,9 @@ ISO_4217_CURRENCY_CODES: set = {
     'XUA', 'XXX', 'YER', 'ZAR', 'ZMW', 'ZWL'
 }
 
+def exit():
+    print("Gracefully exiting...")
+
 def input_currency_value(prompt: str) -> float:
     value_error = "Please enter an integer or a decimal value with up to 2 floating points."
 
@@ -32,6 +35,10 @@ def input_currency_value(prompt: str) -> float:
         if not amount:
             print(value_error)
             continue
+
+        if amount.lower() == "end":
+            exit()
+            quit(0)
 
         try:
             split = amount.split('.')
@@ -53,6 +60,10 @@ def input_currency_type(prompt: str):
         if not currency:
             print("Please enter the 3 digit code of your target currency.")
             continue
+
+        if currency.lower() == "end":
+            exit()
+            quit(0)
 
         if currency.upper() not in ISO_4217_CURRENCY_CODES:
             print("Please enter an ISO 4217 compliant currency code.")
@@ -96,6 +107,7 @@ def main() -> int:
         print("Please make sure your YYYY-MM-DD format only uses integer values.")
         return 1
 
+    print("Type 'end' at any time to gracefully exit the program.")
 
     amount: float = input_currency_value(prompt="Enter amount: ")
     from_currency: str = input_currency_type(prompt="Enter input currency: ")
