@@ -278,13 +278,19 @@ def save_and_exit(output: OutputJSON):
             sep="",
         )
         choice: str = input()
-        match choice:
-            case "1":
-                break
-            case "2":
-                quit(0)
-            case _:
-                print("Please make a correct choice.")
+        # match choice:
+        #     case "1":
+        #         break
+        #     case "2":
+        #         quit(0)
+        #     case _:
+        #         print("Please make a valid choice.")
+        if choice == "1":
+            break
+        elif choice == "2":
+            quit(0)
+        else:
+            print("Please make a valid choice.")
 
     with open(output_file_path, "w") as output_file:
         json.dump(
