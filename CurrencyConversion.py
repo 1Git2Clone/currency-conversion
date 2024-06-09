@@ -1,75 +1,33 @@
+import sys
 from os import path
-from sys import exit
 from argparse import ArgumentParser
 from datetime import datetime
 
 import math
 import json
+from typing import NewType
 
 from requests import get
 from requests.models import Response
 
 
-class CachedConversions:
-    stored_values: dict[
-        tuple[str, str],
-        float,
-    ]
+"""
+The output file class which is a list with a lot of dictionaries. The final
+JSON format looks like this:
 
-    def __init__(self) -> None:
-        self.stored_values = {}
-
-    def new_entry(
-        self,
-        from_currency: str,
-        to_currency: str,
-        coefficient: float,
-    ) -> None:
-        self.stored_values[(from_currency, to_currency)] = coefficient
-
-
-class OutputJSON:
-    """
-    The output file class which is a list with a lot of dictionaries. The final
-    JSON format looks like this:
-
-    ```json
-    [
-      {
-        "date": "2024-06-08",
-        "amount": 1.0,
-        "base_currency": "EUR",
-        "target_currency": "BGN",
-        "converted_amount": 1.93
-      },
-    ]
-    ```
-    """
-
-    date: str
-    amount: float
-    base_currency: str
-    target_currency: str
-    converted_amount: float
-
-    output_json: list[dict[str, str | float]]
-
-    def __init__(self) -> None:
-        self.idx = 1
-        self.output_json = []
-
-    def append(
-        self, date, amount, base_currency, target_currency, converted_amount
-    ) -> None:
-        self.output_json.append(
-            {
-                "date": date,
-                "amount": amount,
-                "base_currency": base_currency,
-                "target_currency": target_currency,
-                "converted_amount": converted_amount,
-            },
-        )
+```json
+[
+    {
+    "date": "2024-06-08",
+    "amount": 1.0,
+    "base_currency": "EUR",
+    "target_currency": "BGN",
+    "converted_amount": 1.93
+    },
+]
+```
+"""
+OutputJSON = NewType("OutputJSON", list[dict[str, str | float]])
 
 
 ISO_4217_CURRENCY_CODES: set = {
@@ -301,30 +259,23 @@ def save_and_exit(output: OutputJSON):
             sep="",
         )
         choice: str = input()
-        # match choice:
-        #     case "1":
-        #         break
-        #     case "2":
-        #         exit(0)
-        #     case _:
-        #         print("Please make a valid choice.")
         if choice == "1":
             break
-        elif choice == "2":
-            exit(0)
-        else:
-            print("Please make a valid choice.")
+        if choice == "2":
+            sys.exit(0)
+
+        print("Please make a valid choice.")
 
     with open(output_file_path, "w") as output_file:
         json.dump(
-            obj=output.output_json,
+            obj=output,
             fp=output_file,
             ensure_ascii=False,
             indent=2,
         )
 
     print("Gracefully exiting...")
-    exit(0)
+    sys.exit(0)
 
 
 def parse_yyyy_mm_dd(date: datetime) -> str:
@@ -438,7 +389,7 @@ def input_currency_type(prompt: str, output: OutputJSON):
 def program_loop(
     fastforex_api_key: str,
     date: str,
-    cached_conversions: CachedConversions,
+    cached_conversions: dict[tuple[str, str], float],
     output: OutputJSON,
 ) -> None:
     """
@@ -455,17 +406,21 @@ def program_loop(
         prompt="Enter target currency: ", output=output
     )
 
-    if cached_conversions.stored_values.__contains__((from_currency, to_currency)):
-        converted_amount: float = amount * cached_conversions.stored_values.__getitem__(
-            (from_currency, to_currency)
+    if (from_currency, to_currency) in cached_conversions:
+        print("Adding from cache...")
+        converted_amount: float = (
+            amount * cached_conversions[(from_currency, to_currency)]
         )
         output.append(
-            date=date,
-            amount=amount,
-            base_currency=from_currency,
-            target_currency=to_currency,
-            converted_amount=converted_amount,
+            {
+                "date": date,
+                "amount": amount,
+                "base_currency": from_currency,
+                "target_currency": to_currency,
+                "converted_amount": converted_amount,
+            }
         )
+        print(output[-1])
         return None
 
     fastforex_request_url: str = (
@@ -486,17 +441,19 @@ def program_loop(
     converted_amount = float(str(f"{converted_amount:.2f}"))
     print(f"Converted amount: {converted_amount}")
 
-    cached_conversions.stored_values[(from_currency, to_currency)] = converted_amount
+    cached_conversions[(from_currency, to_currency)] = converted_amount
 
     print(response_json)
     output.append(
-        date=date,
-        amount=amount,
-        base_currency=from_currency,
-        target_currency=to_currency,
-        converted_amount=converted_amount,
+        {
+            "date": date,
+            "amount": amount,
+            "base_currency": from_currency,
+            "target_currency": to_currency,
+            "converted_amount": converted_amount,
+        }
     )
-    print(output.output_json[0])
+    print(output[0])
 
 
 def main() -> None:
@@ -532,9 +489,9 @@ def main() -> None:
     fastforex_api_key: str = config["fast_forex_api_key"]
     # print(f"{fastforex_api_key}")
 
-    cached_conversions: CachedConversions = CachedConversions()
+    cached_conversions: dict[tuple[str, str], float] = {}
 
-    output: OutputJSON = OutputJSON()
+    output: OutputJSON = OutputJSON([])
 
     while True:
         program_loop(fastforex_api_key, date, cached_conversions, output)
@@ -550,4 +507,4 @@ if __name__ == "__main__":
             "won't write it's output otherwise!",
             sep="",
         )
-        quit(1)
+        sys.exit(1)
