@@ -1,4 +1,4 @@
-# Applica assesment
+# Applica assessment
 
 Related to [this page containing all the requirements](https://www.appolica.com/assessment).
 
