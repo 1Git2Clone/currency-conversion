@@ -1,3 +1,5 @@
+from argparse import ArgumentParser
+
 ISO_4217_CURRENCY_CODES: set = {
     'AED', 'AFN', 'ALL', 'AMD', 'ANG', 'AOA', 'ARS', 'AUD', 'AWG', 'AZN',
     'BAM', 'BBD', 'BDT', 'BGN', 'BHD', 'BIF', 'BMD', 'BND', 'BOB', 'BOV',
@@ -62,6 +64,33 @@ def input_currency_type(prompt: str):
 
 
 def main():
+    parser = ArgumentParser(
+                    prog='CurrencyConversion.py',
+                    description='Converts user input value from one currency into another into a JSON file.')
+    parser.add_argument(
+        '--date', '-d', \
+        type=str, \
+        default="", \
+        help='The SauceNAO API Rate Limit toggle (On by default)', \
+    )
+
+    args = parser.parse_args()
+
+    yyyy_mm_dd: str = args.date.split('-')
+
+    if not yyyy_mm_dd or \
+       len(yyyy_mm_dd) != 3:
+        print("Please make sure to specify a --date / -d flag.")
+        return 1
+
+    try:
+        int(yyyy_mm_dd[0])
+        int(yyyy_mm_dd[1])
+        int(yyyy_mm_dd[2])
+    except ValueError:
+        print("Please make sure your YYYY-MM-DD format only uses integer values.")
+        return 1
+
     amount: float = input_currency_value(prompt="Enter amount: ")
     from_currency: str = input_currency_type(prompt="Enter input currency: ")
     to_currency: str = input_currency_type(prompt="Enter target currency: ")
