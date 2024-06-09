@@ -1,9 +1,57 @@
-from requests import get
 import json
+import math
 
+from requests import get
+from requests.models import Response
 from argparse import ArgumentParser
 from datetime import datetime
 from os import path
+
+
+class CachedConversions:
+    stored_values: dict[
+        tuple[str, str],
+        float,
+    ]
+
+    def __init__(self) -> None:
+        self.stored_values = dict()
+
+    def new_entry(
+        self,
+        from_currency: str,
+        to_currency: str,
+        coefficient: float,
+    ) -> None:
+        self.stored_values[(from_currency, to_currency)] = coefficient
+
+
+class OutputJSON:
+    date: str
+    amount: float
+    base_currency: str
+    target_currency: str
+    converted_amount: float
+
+    output_json: list[dict[str, str | float]]
+
+    def __init__(self) -> None:
+        self.idx = 1
+        self.output_json = list()
+
+    def append(
+        self, date, amount, base_currency, target_currency, converted_amount
+    ) -> None:
+        self.output_json.append(
+            {
+                "date": date,
+                "amount": amount,
+                "base_currency": base_currency,
+                "target_currency": target_currency,
+                "converted_amount": converted_amount,
+            },
+        )
+
 
 ISO_4217_CURRENCY_CODES: set = {
     "AED",
@@ -197,7 +245,55 @@ ISO_4217_CURRENCY_CODES: set = {
 SCRIPT_PATH = path.dirname(path.abspath(__file__))
 
 
-def exit():
+def exit(output: OutputJSON):
+    output_file_path = path.join(SCRIPT_PATH, "output/conversions.json")
+    choice: str = "y"
+    while True:
+        if path.exists(output_file_path):
+            print(
+                f"Filename {output_file_path} already exists.\n",
+                "Do you want to write to another file in 'output/'? y/n: ",
+                end="",
+                sep="",
+            )
+            choice = input()
+
+        if choice.lower() == "y":
+            output_file_name: str = input(
+                "Enter your custom output file name for directory output/"
+            )
+            output_file_path: str = path.join(SCRIPT_PATH, "output", output_file_name)
+
+            if path.exists(output_file_path):
+                continue
+            else:
+                break
+
+        print(
+            "Do you want to: \n",
+            "(1). override your existing file\n",
+            f"(2). exit without saving to {output_file_path}?\n",
+            "Default = None: ",
+            end="",
+            sep="",
+        )
+        choice: str = input()
+        match choice:
+            case "1":
+                break
+            case "2":
+                quit(0)
+            case _:
+                print("Please make a correct choice.")
+
+    with open(output_file_path, "w") as output_file:
+        json.dump(
+            obj=output.output_json,
+            fp=output_file,
+            ensure_ascii=False,
+            indent=2,
+        )
+
     print("Gracefully exiting...")
 
 
@@ -244,7 +340,7 @@ def parse_time(yyyy_mm_dd: str) -> str:
     return parse_yyyy_mm_dd(date)
 
 
-def input_currency_value(prompt: str) -> float:
+def input_currency_value(prompt: str, output: OutputJSON) -> float:
     value_error = (
         "Please enter an integer or a decimal value with up to 2 floating points."
     )
@@ -257,7 +353,7 @@ def input_currency_value(prompt: str) -> float:
             continue
 
         if amount.lower() == "end":
-            exit()
+            exit(output=output)
             quit(0)
 
         try:
@@ -274,7 +370,7 @@ def input_currency_value(prompt: str) -> float:
                 continue
 
 
-def input_currency_type(prompt: str):
+def input_currency_type(prompt: str, output: OutputJSON):
     while True:
         currency: str = input(prompt)
         currency = currency.upper()
@@ -284,7 +380,7 @@ def input_currency_type(prompt: str):
             continue
 
         if currency.lower() == "end":
-            exit()
+            exit(output)
             quit(0)
 
         if currency not in ISO_4217_CURRENCY_CODES:
@@ -300,19 +396,60 @@ def input_currency_type(prompt: str):
 
 
 def program_loop(
-    fastforex_api_key: str, date: str, cached_conversions: dict[tuple[str, str], float]
+    fastforex_api_key: str,
+    date: str,
+    cached_conversions: CachedConversions,
+    output: OutputJSON,
 ) -> None:
     print("Type 'end' at any time to gracefully exit the program.")
 
-    amount: float = input_currency_value(prompt="Enter amount: ")
-    from_currency: str = input_currency_type(prompt="Enter input currency: ")
-    to_currency: str = input_currency_type(prompt="Enter target currency: ")
+    amount: float = input_currency_value(prompt="Enter amount: ", output=output)
+    from_currency: str = input_currency_type(
+        prompt="Enter input currency: ", output=output
+    )
+    to_currency: str = input_currency_type(
+        prompt="Enter target currency: ", output=output
+    )
+
+    if cached_conversions.stored_values.__contains__((from_currency, to_currency)):
+        converted_amount: float = amount * cached_conversions.stored_values.__getitem__(
+            (from_currency, to_currency)
+        )
+        output.append(
+            date=date,
+            amount=amount,
+            base_currency=from_currency,
+            target_currency=to_currency,
+            converted_amount=converted_amount,
+        )
+        return None
 
     fastforex_request_url: str = f"https://api.fastforex.io/historical?date={date}&from={from_currency}&to={to_currency}&api_key={fastforex_api_key}"
     headers = {"accept": "application/json"}
+    response: Response = get(fastforex_request_url, headers=headers)
+    if response.status_code != 200:
+        print("API response failed.")
+        print(response)
+        return None
 
-    response = get(fastforex_request_url, headers=headers)
-    print(response.text)
+    response_json: dict[str | dict[str, float], str | int] = response.json()
+    converted_amount: float = amount * response_json["results"][to_currency]
+    # Rounding down to the floor because it's finance.
+    converted_amount = math.floor(converted_amount * 100) / 100
+    converted_amount = float(str(f"{converted_amount:.2f}"))
+    print(f"Converted amount: {converted_amount}")
+
+    cached_conversions.stored_values[(from_currency, to_currency)] = converted_amount
+
+    print(response_json)
+    output.append(
+        date=date,
+        amount=amount,
+        base_currency=from_currency,
+        target_currency=to_currency,
+        converted_amount=converted_amount,
+    )
+    print(output.output_json[0])
 
 
 def main() -> None:
@@ -341,15 +478,22 @@ def main() -> None:
     fastforex_api_key: str = config["fast_forex_api_key"]
     # print(f"{fastforex_api_key}")
 
-    cached_conversions: dict[tuple[str, str], float] = dict()
+    cached_conversions: CachedConversions = CachedConversions()
+
+    output: OutputJSON = OutputJSON()
 
     while True:
-        program_loop(fastforex_api_key, date, cached_conversions)
+        program_loop(fastforex_api_key, date, cached_conversions, output)
 
 
 if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        exit()
+        print(
+            "\n",
+            "Type out 'end' instead of forcing an exit because the program ",
+            "won't write it's output otherwise!",
+            sep="",
+        )
         quit(1)
