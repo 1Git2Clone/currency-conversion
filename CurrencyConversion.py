@@ -1,3 +1,13 @@
+"""
+A program that converts user input value from one currency into another into a
+`JSON` file. It takes the following arguments:
+
+- --date=YYYY-MM-DD / -d=YYYY-MM-DD
+
+An extra feature: you can use `now` instead of YYYY-MM-DD if you want today's
+values. Check the repository-level README.md file for more information.
+"""
+
 import sys
 from os import path
 from argparse import ArgumentParser
@@ -7,26 +17,24 @@ import math
 import json
 from typing import NewType
 
-from requests import get
+import requests
 from requests.models import Response
 
 
-"""
-The output file class which is a list with a lot of dictionaries. The final
-JSON format looks like this:
-
-```json
-[
-    {
-    "date": "2024-06-08",
-    "amount": 1.0,
-    "base_currency": "EUR",
-    "target_currency": "BGN",
-    "converted_amount": 1.93
-    },
-]
-```
-"""
+# The output file class which is a list with a lot of dictionaries. The final
+# JSON format looks like this:
+#
+# ```json
+# [
+#     {
+#     "date": "2024-06-08",
+#     "amount": 1.0,
+#     "base_currency": "EUR",
+#     "target_currency": "BGN",
+#     "converted_amount": 1.93
+#     },
+# ]
+# ```
 OutputJSON = NewType("OutputJSON", list[dict[str, str | float]])
 
 
@@ -247,8 +255,8 @@ def save_and_exit(output: OutputJSON):
 
             if path.exists(output_file_path):
                 continue
-            else:
-                break
+
+            break
 
         print(
             "Do you want to: \n",
@@ -266,7 +274,7 @@ def save_and_exit(output: OutputJSON):
 
         print("Please make a valid choice.")
 
-    with open(output_file_path, "w") as output_file:
+    with open(output_file_path, "w", encoding="utf-8") as output_file:
         json.dump(
             obj=output,
             fp=output_file,
@@ -305,7 +313,7 @@ def parse_time(yyyy_mm_dd: str) -> str:
 
     if len(separated_yyyy_mm_dd) != 3:
         print("Please make sure to specify a --date / -d flag.")
-        quit(1)
+        sys.exit(1)
 
     try:
         date: datetime = datetime(
@@ -315,16 +323,16 @@ def parse_time(yyyy_mm_dd: str) -> str:
         )
         if date.year < 2015:
             print("There's no data for anything before 2015-01-01.")
-            quit(1)
+            sys.exit(1)
         elif date > datetime.now():
             print(
                 "This program doesn't have the capabilities to forsee future currency",
                 "values... yet.",
             )
-            quit(1)
+            sys.exit(1)
     except ValueError:
         print("Please make sure your YYYY-MM-DD format only uses integer values.")
-        quit(1)
+        sys.exit(1)
 
     return parse_yyyy_mm_dd(date)
 
@@ -363,6 +371,10 @@ def input_currency_value(prompt: str, output: OutputJSON) -> float:
 
 
 def input_currency_type(prompt: str, output: OutputJSON):
+    """
+    Utility function used for prompting the user for their 3 digit currency
+    input currency type which is ISO 4217 compliant.
+    """
     while True:
         currency: str = input(prompt)
         currency = currency.upper()
@@ -428,7 +440,9 @@ def program_loop(
         + f"&from={from_currency}&to={to_currency}&api_key={fastforex_api_key}"
     )
     headers = {"accept": "application/json"}
-    response: Response = get(fastforex_request_url, headers=headers)
+    response: Response = requests.get(
+        fastforex_request_url, headers=headers, timeout=10
+    )
     if response.status_code != 200:
         print("API response failed.")
         print(response)
@@ -454,6 +468,8 @@ def program_loop(
         }
     )
     print(output[0])
+
+    return None
 
 
 def main() -> None:
@@ -483,7 +499,9 @@ def main() -> None:
 
     config: dict[str, str]
 
-    with open(path.join(SCRIPT_PATH, "config.json"), "r") as config_file:
+    with open(
+        path.join(SCRIPT_PATH, "config.json"), "r", encoding="utf-8"
+    ) as config_file:
         config = json.load(config_file)
 
     fastforex_api_key: str = config["fast_forex_api_key"]
