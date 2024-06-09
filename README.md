@@ -1,5 +1,12 @@
 # Appolica assessment
 
+[![GH_Build Icon]][GH_Build Status]&emsp;[![License Icon]][LICENSE]
+
+[GH_Build Icon]: https://img.shields.io/github/actions/workflow/status/1git2clone/currency-conversion/pylint.yml?branch=main
+[GH_Build Status]: https://github.com/1git2clone/currency-conversion/actions?query=branch%3Amaster
+[License Icon]: https://img.shields.io/badge/license-MIT-blue.svg
+[LICENSE]: LICENSE
+
 Related to [this page containing all the requirements](https://www.appolica.com/assessment).
 
 A program that converts user input value from one currency into another into a
