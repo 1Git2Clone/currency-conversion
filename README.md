@@ -15,7 +15,7 @@ file format should be like this
 
 ```json
 {
-  "fast_fortex_api_key": "your-key-here | check out https://console.fastforex.io/auth/signin"
+  "fast_forex_api_key": "your-key-here | check out https://console.fastforex.io/auth/signin"
 }
 ```
 
