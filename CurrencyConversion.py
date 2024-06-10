@@ -242,6 +242,13 @@ SCRIPT_PATH = path.dirname(path.abspath(__file__))
 #     "target_currency": "BGN",
 #     "converted_amount": 1.93
 #     },
+#  {
+#    "date": "2024-06-08",
+#    "amount": 3216532.0,
+#    "base_currency": "USD",
+#    "target_currency": "JPY",
+#    "converted_amount": 504205543.74
+#  }
 # ]
 # ```
 OutputJSON = NewType("OutputJSON", list[dict[str, str | float]])
