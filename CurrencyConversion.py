@@ -298,6 +298,7 @@ def save_and_exit(output: OutputJSON) -> NoReturn:
 
     :rtype: typing.NoReturn
     """
+
     output_file_path = path.join(SCRIPT_PATH, "output/conversions.json")
     choice: str = ""
     while True:
@@ -354,6 +355,7 @@ def parse_yyyy_mm_dd(date: datetime) -> str:
         YYYY-MM-DD format.
     :rtype: str
     """
+
     parsed_month: str = str(date.month)
     if date.month < 10:
         parsed_month = "0" + parsed_month
@@ -370,6 +372,7 @@ def parse_time(yyyy_mm_dd: str) -> str:
     :param yyyy_mm_dd: The program's raw date argument. YYYY-MM-DD format.
     :rtype: str
     """
+
     if yyyy_mm_dd.lower() == "now":
         return parse_yyyy_mm_dd(datetime.now())
 
@@ -411,6 +414,7 @@ def input_currency_value(prompt: str, output: OutputJSON) -> float:
     :param output: The program's output file JSON data.
     :rtype: float
     """
+
     value_error = (
         "Please enter an integer or a decimal value with up to 2 floating points."
     )
@@ -447,6 +451,7 @@ def input_currency_type(prompt: str, output: OutputJSON) -> str:
     :param output: The program's output file JSON data.
     :rtype: str
     """
+
     while True:
         currency: str = input(prompt)
         currency = currency.upper()
@@ -486,6 +491,7 @@ def program_loop(
     :param output: The program's output file JSON data.
     :rtype: None
     """
+
     print("Type 'end' at any time to gracefully exit the program.")
 
     amount: float = input_currency_value(prompt="Enter amount: ", output=output)
