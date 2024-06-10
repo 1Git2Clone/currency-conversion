@@ -246,7 +246,7 @@ class HistoricalFastForexResponseJSON(TypedDict):
     ```
 
     This program makes use of the Self["results"][`output_currency`] value.
-    where the output_currency varies based on the user input.
+    where the `output_currency` variable varies based on the user input.
     """
 
     date: str
