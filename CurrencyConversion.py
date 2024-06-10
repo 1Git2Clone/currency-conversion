@@ -231,6 +231,30 @@ SCRIPT_PATH = path.dirname(path.abspath(__file__))
 ###############################################################################
 
 
+class HistoricalFastForexResponseJSON(TypedDict):
+    r"""This is an example of a historically fetched response JSON
+
+    ```json
+    {
+      "date":"2024-06-08",
+      "base":"BGN",
+      "results": {
+        "EUR":0.51633
+      },
+      "ms":2
+    }
+    ```
+
+    This program makes use of the Self["results"][`output_currency`] value.
+    where the output_currency varies based on the user input.
+    """
+
+    date: str
+    base: str
+    results: dict[str, float]
+    ms: int
+
+
 class OutputJSONFormat(TypedDict):
     r"""The output file format class which is used in a list with the
     dictionaries with the following JSON format:
@@ -502,7 +526,7 @@ def program_loop(
         print(response)
         return None
 
-    response_json: dict[str | dict[str, float], str | int] = response.json()
+    response_json: HistoricalFastForexResponseJSON = response.json()
     converted_amount: float = amount * response_json["results"][to_currency]
     # Rounding down to the floor because it's finance.
     converted_amount = math.floor(converted_amount * 100) / 100
