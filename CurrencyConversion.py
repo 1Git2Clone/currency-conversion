@@ -287,9 +287,7 @@ def save_and_exit(output: OutputJSON) -> NoReturn:
             choice = input()
 
         if choice.lower() == "y":
-            output_file_name: str = input(
-                "Enter your custom output file name for directory output/"
-            )
+            output_file_name: str = input("Enter your custom output file name: output/")
             output_file_path: str = path.join(SCRIPT_PATH, "output", output_file_name)
 
             if path.exists(output_file_path):
