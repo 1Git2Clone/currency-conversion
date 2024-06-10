@@ -309,8 +309,7 @@ def save_and_exit(output: OutputJSON) -> NoReturn:
 
 
 def parse_yyyy_mm_dd(date: datetime) -> str:
-    r"""
-    Handles the parsing of the trailing zeroes in the month and dates.
+    r"""Handles the parsing of the trailing zeroes in the month and dates.
 
     :param yyyy_mm_dd: The program's date argument in the form of datetime.
         YYYY-MM-DD format.
