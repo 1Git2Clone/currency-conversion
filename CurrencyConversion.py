@@ -232,6 +232,28 @@ SCRIPT_PATH = path.dirname(path.abspath(__file__))
 
 
 class OutputJSONFormat(TypedDict):
+    r"""The output file format class which is used in a list with the
+    dictionaries with the following JSON format:
+
+    ```json
+    [
+      {
+        "date": "2024-06-08",
+        "amount": 1.0,
+        "base_currency": "EUR",
+        "target_currency": "BGN",
+        "converted_amount": 1.93
+      },
+      {
+        "date": "2024-06-08",
+        "amount": 3216532.0,
+        "base_currency": "USD",
+        "target_currency": "JPY",
+        "converted_amount": 504205543.74
+      }
+    ]
+    """
+
     date: str
     amount: float
     base_currency: str
