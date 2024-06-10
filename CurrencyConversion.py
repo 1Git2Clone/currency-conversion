@@ -551,7 +551,7 @@ def program_loop(
             "converted_amount": converted_amount,
         }
     )
-    print(output[0])
+    print(output[-1])
 
     return None
 
