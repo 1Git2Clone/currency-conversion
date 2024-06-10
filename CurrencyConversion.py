@@ -17,7 +17,7 @@ import sys
 from os import path
 from datetime import datetime
 from argparse import ArgumentParser
-from typing import NewType, NoReturn
+from typing import NoReturn, TypeAlias, TypedDict
 import math
 
 import json
@@ -230,28 +230,16 @@ SCRIPT_PATH = path.dirname(path.abspath(__file__))
 # Types/Classes
 ###############################################################################
 
-# The output file class which is a list with a lot of dictionaries. The final
-# JSON format looks like this:
-#
-# ```json
-# [
-#     {
-#     "date": "2024-06-08",
-#     "amount": 1.0,
-#     "base_currency": "EUR",
-#     "target_currency": "BGN",
-#     "converted_amount": 1.93
-#     },
-#  {
-#    "date": "2024-06-08",
-#    "amount": 3216532.0,
-#    "base_currency": "USD",
-#    "target_currency": "JPY",
-#    "converted_amount": 504205543.74
-#  }
-# ]
-# ```
-OutputJSON = NewType("OutputJSON", list[dict[str, str | float]])
+
+class OutputJSONFormat(TypedDict):
+    date: str
+    amount: float
+    base_currency: str
+    target_currency: str
+    converted_amount: float
+
+
+OutputJSON: TypeAlias = list[OutputJSONFormat]
 
 ###############################################################################
 # Fucntions
