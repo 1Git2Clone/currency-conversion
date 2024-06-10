@@ -275,7 +275,7 @@ def save_and_exit(output: OutputJSON) -> NoReturn:
     :rtype: typing.NoReturn
     """
     output_file_path = path.join(SCRIPT_PATH, "output/conversions.json")
-    choice: str = "y"
+    choice: str = ""
     while True:
         if path.exists(output_file_path):
             print(
