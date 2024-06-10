@@ -218,13 +218,13 @@ ISO_4217_CURRENCY_CODES: set = {
     "ZWL",
 }
 
-PREMATURE_EXIT = (
+PREMATURE_EXIT: str = (
     "\n"
     + "Type out 'end' instead of forcing an exit because the program "
     + "won't write it's output otherwise!"
 )
 
-SCRIPT_PATH = path.dirname(path.abspath(__file__))
+SCRIPT_PATH: str = path.dirname(path.abspath(__file__))
 
 ###############################################################################
 # Types/Classes
