@@ -516,31 +516,12 @@ def program_loop(
 ###############################################################################
 
 
-def main() -> None:
+def main(date: str) -> None:
     r"""Other than the argument parsing, the main function here is also responsible
     for storing the cache and the entire OutputJSON file.
 
     :rtype: None
     """
-    parser = ArgumentParser(
-        prog="CurrencyConversion.py",
-        description="Converts user input value from one currency into another into a JSON file.",
-    )
-    parser.add_argument(
-        "--date",
-        "-d",
-        type=str,
-        default="",
-        required=True,
-        help=(
-            "The date format is YYYY-MM-DD. You can also use 'now' as a shorthand for the current"
-            + " system day."
-        ),
-    )
-
-    args = parser.parse_args()
-
-    date: str = parse_time(args.date)
 
     config: dict[str, str]
 
@@ -561,8 +542,26 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    parser = ArgumentParser(
+        prog="CurrencyConversion.py",
+        description="Converts user input value from one currency into another into a JSON file.",
+    )
+    parser.add_argument(
+        "--date",
+        "-d",
+        type=str,
+        default="",
+        required=True,
+        help=(
+            "The date format is YYYY-MM-DD. You can also use 'now' as a shorthand for the current"
+            + " system day."
+        ),
+    )
+
+    args = parser.parse_args()
+
     try:
-        main()
+        main(date=parse_time(args.date))
     except KeyboardInterrupt:
         print(PREMATURE_EXIT)
         sys.exit(1)
