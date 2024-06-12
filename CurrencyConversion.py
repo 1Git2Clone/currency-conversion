@@ -431,7 +431,7 @@ def input_currency_value(prompt: str, output: OutputJSON) -> float:
 
         try:
             split = amount.split(".")
-            if len(split) == 2 and len(split[1]) > 2:
+            if len(split) == 2 and len(split[1]) < 3:
                 print(value_error)
                 continue
             return float(amount)
