@@ -296,6 +296,7 @@ def save_and_exit(output: OutputJSON) -> NoReturn:
     r"""Handles writing the stored OutputJSON to the output directory. By default
     in 'output/conversions.json' but the file name can be changed.
 
+    :param output: The program's output file JSON data.
     :rtype: typing.NoReturn
     """
 
